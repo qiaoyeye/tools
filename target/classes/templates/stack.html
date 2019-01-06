@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Tools</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <!-- VENDOR CSS -->
+    <link rel="stylesheet" href="tpez/assets/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="tpez/assets/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="tpez/assets/vendor/linearicons/style.css">
+    <!-- MAIN CSS -->
+    <link rel="stylesheet" href="tpez/assets/css/main.css">
+    <!-- FOR DEMO PURPOSES ONLY. You should remove this in your project -->
+    <link rel="stylesheet" href="tpez/assets/css/demo.css">
+    <!-- GOOGLE FONTS -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700" rel="stylesheet">
+    <!-- ICONS -->
+    <link rel="apple-touch-icon" sizes="76x76" href="tpez/assets/img/apple-icon.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="tpez/assets/img/favicon.png">
+
+    <script src="tpez/assets/vendor/jquery/jquery.min.js"></script>
+    <script src="tpez/assets/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="tpez/assets/vendor/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="tpez/assets/scripts/klorofil-common.js"></script>
+    <!--AngularJS框架-->
+    <script src="https://cdn.staticfile.org/angular.js/1.6.3/angular.min.js"></script>
+
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+
+    <!-- Latest compiled and minified Locales -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/locale/bootstrap-table-zh-CN.min.js"></script>
+
+</head>
+
+<body>
+
+<script type="text/javascript">
+    //增加case
+    $(document).ready(function () {
+        $("button#add").click(function () {
+            var CaseName = $("input[name$='CaseName']").val();
+            var CaseType = $("input[name$='CaseType']").val();
+            var CaseUrl = $("input[name$='CaseUrl']").val();
+            var CaseParam = $("input[name$='CaseParam']").val();
+            var CaseCheck = $("input[name$='CaseCheck']").val();
+            var CaseResult = $("input[name$='CaseResult']").val();
+            $.ajax({
+                url: '/addCase',
+                type: 'post',
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify({
+                    "caseName": CaseName,
+                    "caseType": CaseType,
+                    "caseUrl": CaseUrl,
+                    "caseParam": CaseParam,
+                    "caseCheck": CaseCheck,
+                    "caseResult": CaseResult
+                }),
+                dataType: "json",
+                success: function (result) {
+                    if (result == 1) {
+                        window.location.href = "/stack";
+                    } else {
+                        alert("系统繁忙，请稍后再试")
+                        window.location.href = "/stack";
+                    }
+                },
+                error: function (msg) {
+                    $(".notice").html('Error:' + msg);
+                }
+            })
+            return false;
+        })
+
+
+        $('#table').bootstrapTable({
+            url: '/queryCase',
+            striped: true,                      //是否显示行间隔色
+            cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,                   //是否显示分页（*）
+            checkboxHeader:false,
+            // sortable: true,                     //是否启用排序
+            // sortOrder: "asc",                   //排序方式
+            // sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+            // pageNumber: 1,                      //初始化加载第一页，默认第一页,并记录
+            // pageSize: 100,                     //每页的记录行数（*）
+            // pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            // search: false,                      //是否显示表格搜索
+            // strictSearch: true,
+            // showColumns: true,                  //是否显示所有的列（选择显示的列）
+            // showRefresh: true,                  //是否显示刷新按钮
+            // minimumCountColumns: 2,             //最少允许的列数
+            // clickToSelect: true,                //是否启用点击选中行
+            // uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+            // showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
+            // cardView: false,                    //是否显示详细视图
+            // detailView: false,                  //是否显示父子表
+            columns: [
+                {
+                    field: '',
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return index+1;
+                    }
+                },
+                {
+                checkbox: false,
+                visible: false
+            }, {
+                field: 'caseName',
+                title: '名称'
+            }, {
+                field: 'caseType',
+                title: '请求方式'
+            }, {
+                field: 'caseUrl',
+                title: '请求地址'
+            }, {
+                field: 'caseParam',
+                title: '参数'
+            }, {
+                field: 'caseResult',
+                title: '结果'
+            }, {
+                field: 'caseCheck',
+                title: '校验'
+            }, {
+                field: 'Button',
+                title: '操作',
+                width: 200,
+                align: 'center',
+                valign: 'middle',
+                formatter: function(value, row, index, field) {
+                    var result = "";
+                    result += "<a href='javascript:;' class='btn btn-xs green' onclick=\"EditViewById('" + row.id + "', view='view')\" title='查看'><span class='glyphicon glyphicon-search'></span></a>";
+                    result += "<a href='javascript:;' class='btn btn-xs blue' onclick=\"EditViewById('" + row.id + "')\" title='编辑'><span class='glyphicon glyphicon-pencil'></span></a>";
+                    result += "<a href='javascript:;' class='btn btn-xs red' onclick=\"DeleteByIds('" + row.id + "')\" title='删除'><span class='glyphicon glyphicon-remove'></span></a>";
+                    result += "<a href='javascript:;' class='btn btn-xs block' onclick=\"runByIds('" + row.id + "')\" title='运行'><span class='glyphicon glyphicon-play-circle'></span></a>";
+                    return result;
+            }}],
+            onLoadSuccess: function () {
+            },
+            onLoadError: function () {
+                showTips("数据加载失败！");
+            }
+        });
+
+    });
+
+    //删除单个case
+   function DeleteByIds (id) {
+       $('#deleteArticleModal').modal('show');
+       $('#delete').click(function() {
+           $.ajax({
+               url: '/deleteCase',
+               type: 'post',
+               data: "id=" + id, //传的参数
+               success: function (result) {
+                   if (result == 1) {
+                       window.location.href = "/stack";
+                   } else {
+                       alert("系统繁忙，请稍后再试")
+                       window.location.href = "/stack";
+                   }
+               },
+               error: function (msg) {
+                   alert("系统繁忙，请稍后再试")
+                   window.location.href = "/stack";
+               }
+           })
+       })
+   };
+    //编辑case--先根据ID查询出来
+    function EditViewById (id) {
+            $.ajax({
+                url: '/queryOne',
+                type: 'get',
+                data: "id=" + id, //传的参数
+                success: function (result) {
+                    if (result.size()==1) {
+
+                      //  $('#updatecase').modal('show');
+                    } else {
+                        alert("系统繁忙，请稍后再试")
+                        window.location.href = "/stack";
+                    }
+                },
+                error: function (msg) {
+                    alert("系统繁忙，请稍后再试")
+                    window.location.href = "/stack";
+                }
+            })
+
+    };
+
+    //运行case
+    function runByIds (id) {
+       // $('#deleteArticleModal').modal('show');
+       // $('#delete').click(function() {
+            $.ajax({
+                url: '/runCase',
+                type: 'post',
+                data: "id=" + id, //传的参数
+                success: function (result) {
+                    if (result == 1) {
+                        alert("运行成功！")
+                        window.location.href = "/stack";
+                    } else {
+                        alert("系统繁忙，请稍后再试")
+                        window.location.href = "/stack";
+                    }
+                },
+                error: function (msg) {
+                    alert("系统繁忙，请稍后再试")
+                    window.location.href = "/stack";
+                }
+            })
+        //})
+    };
+
+
+
+</script>
+
+<!-- WRAPPER -->
+<div id="wrapper">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="brand">
+            <a href="index.html"><img src="tpez/assets/img/logo-dark.png" alt="Klorofil Logo"
+                                      class="img-responsive logo"></a>
+        </div>
+        <div class="container-fluid">
+            <div id="navbar-menu">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle icon-menu" data-toggle="dropdown">
+                            <i class="lnr lnr-alarm"></i>
+                            <span class="badge bg-danger">5</span>
+                        </a>
+                        <ul class="dropdown-menu notifications">
+                            <li><a href="#" class="notification-item"><span class="dot bg-warning"></span>System space
+                                is almost full</a></li>
+                            <li><a href="#" class="notification-item"><span class="dot bg-danger"></span>You have 9
+                                unfinished tasks</a></li>
+                            <li><a href="#" class="notification-item"><span class="dot bg-success"></span>Monthly report
+                                is available</a></li>
+                            <li><a href="#" class="notification-item"><span class="dot bg-warning"></span>Weekly meeting
+                                in 1 hour</a></li>
+                            <li><a href="#" class="notification-item"><span class="dot bg-success"></span>Your request
+                                has been approved</a></li>
+                            <li><a href="#" class="more">See all notifications</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i
+                                class="lnr lnr-question-circle"></i> <span>Help</span> <i
+                                class="icon-submenu lnr lnr-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Basic Use</a></li>
+                            <li><a href="#">Working With Data</a></li>
+                            <li><a href="#">Security</a></li>
+                            <li><a href="#">Troubleshooting</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><img src="tpez/assets/img/user.png"
+                                                                                        class="img-circle" alt="Avatar">
+                            <span>Samuel</span> <i class="icon-submenu lnr lnr-chevron-down"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#"><i class="lnr lnr-user"></i> <span>My Profile</span></a></li>
+                            <li><a href="#"><i class="lnr lnr-envelope"></i> <span>Message</span></a></li>
+                            <li><a href="#"><i class="lnr lnr-cog"></i> <span>Settings</span></a></li>
+                            <li><a href="#"><i class="lnr lnr-exit"></i> <span>Logout</span></a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- END NAVBAR -->
+    <!-- LEFT SIDEBAR -->
+    <div id="sidebar-nav" class="sidebar">
+        <div class="sidebar-scroll">
+            <nav>
+                <ul class="nav">
+                    <li><a href="/stack" class="active"><i class="lnr lnr-home"></i> <span>Dashboard</span></a></li>
+                    <li><a href="tpez/elements.html" class=""><i class="lnr lnr-code"></i> <span>Elements</span></a>
+                    </li>
+                    <li><a href="tpez/charts.html" class=""><i class="lnr lnr-chart-bars"></i> <span>Charts</span></a>
+                    </li>
+                    <li><a href="tpez/panels.html" class=""><i class="lnr lnr-cog"></i> <span>Panels</span></a></li>
+                    <li><a href="tpez/notifications.html" class=""><i class="lnr lnr-alarm"></i>
+                        <span>Notifications</span></a></li>
+                    <li>
+                        <a href="#subPages" data-toggle="collapse" class="active"><i class="lnr lnr-file-empty"></i>
+                            <span>Pages</span> <i class="icon-submenu lnr lnr-chevron-left"></i></a>
+                        <div id="subPages" class="collapse in">
+                            <ul class="nav">
+                                <li><a href="page-profile.html" class="active">Profile</a></li>
+                                <li><a href="page-login.html" class="">Login</a></li>
+                                <li><a href="page-lockscreen.html" class="">Lockscreen</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li><a href="tables.html" class=""><i class="lnr lnr-dice"></i> <span>Tables</span></a></li>
+                    <li><a href="typography.html" class=""><i class="lnr lnr-text-format"></i>
+                        <span>Typography</span></a></li>
+                    <li><a href="icons.html" class=""><i class="lnr lnr-linearicons"></i> <span>Icons</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div>
+        <div class="main-content">
+            <div class="profile-right">
+                <!--<table class="table-responsive table table-hover">-->
+                <caption>
+                <button type="button"  class="btn btn-primary dropdown-toggle" data-toggle="modal" data-target="#myModal">
+                添加case
+                </button>
+                </caption>
+                <table id="table"></table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+//用于确认删除的bootstrap模态框
+<div class="modal" id="deleteArticleModal" tabindex="-1" role="dialog" aria-labelledby="deleteArticleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteArticleModalLabel">确认删除</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                删除后不能恢复，确认删除吗？
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="delete">删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--添加case按钮弹框-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    添加case
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="CaseName">名称</label>
+                    <input type="text" name="CaseName" class="form-control" id="CaseName" placeholder="名称">
+                </div>
+                <div class="form-group">
+                    <label for="CaseType">请求方式</label>
+                    <input type="text" name="CaseType" class="form-control" id="CaseType" placeholder="请求方式">
+                </div>
+                <div class="form-group">
+                    <label for="CaseUrl">请求地址</label>
+                    <input type="text" name="CaseUrl" class="form-control" id="CaseUrl" placeholder="请求地址">
+                </div>
+                <div class="form-group">
+                    <label for="CaseParam">参数</label>
+                    <input type="text" name="CaseParam" class="form-control" id="CaseParam" placeholder="参数">
+                </div>
+                <div class="form-group">
+                    <label for="CaseCheck">校验信息</label>
+                    <input type="text" name="CaseCheck" class="form-control" id="CaseCheck" placeholder="校验信息">
+                </div>
+                <div class="form-group">
+                    <label for="CaseResult">运行结果</label>
+                    <input type="text" name="CaseResult" class="form-control" id="CaseResult" placeholder="运行结果">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" id=add>
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--编辑case按钮弹框-->
+<div class="modal fade" id="updatecase" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="updateModalLabel">
+                    修改case
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="CaseName">名称</label>
+                    <input type="text" name="caseName" class="form-control" value="caseName" placeholder="名称">
+                </div>
+                <div class="form-group">
+                    <label for="CaseType">请求方式</label>
+                    <input type="text" name="caseType" class="form-control" id="UpCaseType" placeholder="请求方式">
+                </div>
+                <div class="form-group">
+                    <label for="CaseUrl">请求地址</label>
+                    <input type="text" name="caseUrl" class="form-control" id="UpCaseUrl" placeholder="请求地址">
+                </div>
+                <div class="form-group">
+                    <label for="CaseParam">参数</label>
+                    <input type="text" name="caseParam" class="form-control" id="UpCaseParam" placeholder="参数">
+                </div>
+                <div class="form-group">
+                    <label for="CaseCheck">校验信息</label>
+                    <input type="text" name="caseCheck" class="form-control" id="UpCaseCheck" placeholder="校验信息">
+                </div>
+                <div class="form-group">
+                    <label for="CaseResult">运行结果</label>
+                    <input type="text" name="caseResult" class="form-control" id="UpCaseResult" placeholder="运行结果">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" id=update>
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+</html>

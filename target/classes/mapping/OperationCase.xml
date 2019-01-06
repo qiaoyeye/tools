@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.restful.up.dao.OperationCaseDao">
+  <resultMap id="caseModel" type="com.restful.up.model.CaseModel">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="casename" property="caseName" jdbcType="VARCHAR"/>
+        <result column="casetype" property="caseType" jdbcType="VARCHAR"/>
+        <result column="caseurl" property="caseUrl" jdbcType="VARCHAR"/>
+        <result column="caseparam" property="caseParam" jdbcType="VARCHAR"/>
+        <result column="casecheck" property="caseCheck" jdbcType="VARCHAR"/>
+        <result column="caseresult" property="caseResult" jdbcType="VARCHAR"/>
+        <result column="isdel" property="isDel" jdbcType="INTEGER"/>
+ </resultMap>
+
+    <insert id="addCase" parameterType="com.restful.up.model.CaseModel" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO  case_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="caseName != null">
+                casename,
+            </if>
+            <if test="caseType != null">
+                casetype,
+            </if>
+            <if test="caseUrl != null">
+                caseurl,
+            </if>
+            <if test="caseParam != null">
+                caseparam,
+            </if>
+            <if test="caseCheck != null">
+                casecheck,
+            </if>
+            <if test="caseResult != null">
+                caseresult,
+            </if>
+            <if test="isDel != null">
+                isdel
+            </if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="caseName != null">
+                #{caseName},
+            </if>
+            <if test="caseType != null">
+                #{caseType},
+            </if>
+            <if test="caseUrl !=null">
+                #{caseUrl},
+            </if>
+            <if test="caseParam !=null">
+                #{caseParam},
+            </if>
+            <if test="caseCheck !=null">
+                #{caseCheck},
+            </if>
+            <if test="caseResult != null">
+                #{caseResult},
+            </if>
+            <if test="isDel != null">
+                #{isDel}
+            </if>
+        </trim>
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+    <select id="queryCase"  resultType="caseModel">
+      SELECT id,casename,casetype,caseurl,caseparam,casecheck,caseresult from case_info WHERE isdel=0
+    </select>
+
+    <update id="delOne" parameterType="java.lang.Integer">
+      UPDATE case_info
+      <set>
+              isdel = 1
+      </set>
+        WHERE
+        <if test=" _parameter != null">
+            id = #{id}
+        </if>
+    </update>
+
+
+    <!--根据ID查询单个数据-->
+    <select id="queryOne" parameterType="java.lang.Integer" resultMap="caseModel">
+        SELECT casename,casetype,caseurl,caseparam,casecheck,caseresult,isdel from case_info where id = #{id}
+    </select>
+
+    <!--更新单个case运行结果-->
+    <update id="updateresult" parameterType="com.restful.up.model.CaseModel">
+        <!--<foreach collection="map" separator=";" item="cus">-->
+            UPDATE case_info
+            <set>
+                caseResult=#{caseResult}
+            </set>
+            WHERE
+            <if test=" _parameter != null">
+                id = #{id}
+            </if>
+        <!--</foreach>-->
+
+    </update>
+
+
+    <!--<select id="login" parameterType="String" resultMap="ResultMap">-->
+        <!--SELECT * from userest where username = #{userName}-->
+    <!--</select>-->
+
+    <!--<select id="menu" parameterType="java.util.List" resultMap="ResultMap">-->
+        <!--SELECT * FROM  MENUITEM;-->
+    <!--</select>-->
+
+
+
+</mapper>
